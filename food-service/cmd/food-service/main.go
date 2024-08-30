@@ -11,32 +11,23 @@ import (
 	"github.com/idkwhyureadthis/food-service/internal/db"
 	"github.com/idkwhyureadthis/food-service/internal/middleware"
 	"github.com/idkwhyureadthis/food-service/internal/service"
-	"github.com/joho/godotenv"
 )
 
 const defaultPort = "8080"
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	dbData := db.DbData{
-		User:     os.Getenv("USER"),
-		Password: os.Getenv("PASSWORD"),
-		Host:     os.Getenv("HOST"),
-		DbName:   os.Getenv("DBNAME"),
-		Port:     os.Getenv("DBPORT"),
-	}
-	err = db.Setup(dbData)
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	dbPath := os.Getenv("PATH")
+	err := db.Setup(dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	service.Init()
-	db.Reset()
 
 	port := os.Getenv("PORT")
 	if port == "" {

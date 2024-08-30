@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/idkwhyureadthis/food-service/graph/model"
@@ -20,7 +19,6 @@ func Init() {
 	lastAddedUser = db.GetLastId("users")
 	lastAddedOrder = db.GetLastId("orders")
 	lastAddedProduct = db.GetLastId("products")
-	fmt.Println(lastAddedOrder, lastAddedProduct, lastAddedUser)
 }
 
 func CreateNewUser(userName string) (*model.User, error) {
