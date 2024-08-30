@@ -1,0 +1,54 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+enum ProductSize {
+  Small
+  Medium
+  Large
+}
+
+type User {
+  id: ID!
+  name: String!
+  orders: [Order!]!
+}
+
+type Order{
+  id: ID!
+  items: [Product!]!
+  totalPrice: Float!
+}
+
+type Product{
+  id: ID!
+  name: String!
+  description: String!
+  size: ProductSize
+  price: [Float!]!
+}
+
+type Query {
+  user(userId: ID!): User!
+}
+
+type Mutation {
+  createUser(input: NewUser): User!
+  deleteUser(input: RemovedUser): String!
+  addProduct(input: NewProduct): Product!
+}
+
+input NewProduct{
+  name: String!
+  description: String!
+  hasSizes: Boolean!,
+  prices: [Float!]!
+}
+
+input NewUser {
+  name: String!
+}
+
+input RemovedUser {
+  id: ID!
+}
