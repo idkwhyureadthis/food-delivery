@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/internal/database/db"
+	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/model"
 )
 
 type Service struct {
@@ -15,4 +16,9 @@ func New(dbPath string) *Service {
 	return &Service{
 		db: conn,
 	}
+}
+
+func (s *Service) CreateUser() model.ServiceResponse {
+	resp := model.ServiceResponse{}
+	return resp
 }
