@@ -16,9 +16,9 @@ type App struct {
 	s *service.Service
 }
 
-func New(dbPath string) (*App, error) {
+func New(dbPath string, secretKey []byte) (*App, error) {
 	a := &App{}
-	a.s = service.New(dbPath)
+	a.s = service.New(dbPath, secretKey)
 	a.e = endpoint.New(a.s)
 	a.r = chi.NewRouter()
 	a.r.Use(cors.Handler(cors.Options{
@@ -31,6 +31,7 @@ func New(dbPath string) (*App, error) {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+	a.r.Post("/createuser", a.e.CreateUser)
 	return a, nil
 }
 

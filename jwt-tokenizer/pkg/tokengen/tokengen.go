@@ -1,6 +1,8 @@
 package tokengen
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"fmt"
 	"time"
 
@@ -13,18 +15,21 @@ type TokenPart interface {
 
 func GenerateTokens(userData model.UserData, secretKey []byte) (*model.GeneratedTokens, error) {
 	tokens := model.GeneratedTokens{}
-	headerStruct := model.Header{Alg: "HS256",
+	accessHeaderStruct := model.Header{Alg: "HS256",
 		Typ: "JWT"}
-	bodyStruct := model.Body{
+	accessBodyStruct := model.Body{
 		Sub:  userData.Id,
 		Name: userData.Name,
 		Exp:  time.Now().Add(15 * time.Minute).Unix(),
 	}
-	fmt.Println(headerStruct, bodyStruct)
-	access, err := encoder.Encode(headerStruct, bodyStruct, secretKey)
+	access, err := encoder.Encode(accessHeaderStruct, accessBodyStruct, secretKey)
 	if err != nil {
 		return nil, err
 	}
+	hs := hmac.New(sha256.New, secretKey)
+	hs.Write([]byte(access))
+	refresh := string(hs.Sum(nil))
 	tokens.AccessToken = access
+	tokens.RefreshToken = fmt.Sprintf("%x", refresh)
 	return &tokens, nil
 }

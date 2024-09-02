@@ -1,17 +1,13 @@
 package model
 
 type GeneratedTokens struct {
-	AccessToken, RefreshToken string
+	AccessToken  string `json:"access"`
+	RefreshToken string `json:"refresh"`
 }
 
 type UserData struct {
 	Id   int64
 	Name string
-}
-
-type ServiceResponse struct {
-	Answer string
-	Err    error
 }
 
 type Header struct {

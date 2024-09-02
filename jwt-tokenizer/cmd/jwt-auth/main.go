@@ -11,7 +11,8 @@ import (
 func main() {
 	err := godotenv.Load()
 	dbPath := os.Getenv("PATH")
-	a, err := app.New(dbPath)
+	secretKey := os.Getenv("SECRET")
+	a, err := app.New(dbPath, []byte(secretKey))
 	if err != nil {
 		log.Fatal(err)
 	}
