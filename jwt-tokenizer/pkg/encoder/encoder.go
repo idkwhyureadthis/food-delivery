@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Encode(header model.Header, payload model.Body, secretKey []byte) (string, error) {
@@ -26,4 +27,12 @@ func Encode(header model.Header, payload model.Body, secretKey []byte) (string, 
 	sEnc := base64.RawURLEncoding.EncodeToString(h.Sum(nil))
 	EncodedData := hEnc + "." + bEnc + "." + sEnc
 	return EncodedData, nil
+}
+
+func CryptToken(token string) (string, error) {
+	cryptedRefresh, err := bcrypt.GenerateFromPassword([]byte(token), 14)
+	if err != nil {
+		return "", err
+	}
+	return string(cryptedRefresh), nil
 }

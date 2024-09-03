@@ -32,6 +32,7 @@ func New(dbPath string, secretKey []byte) (*App, error) {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 	a.r.Post("/createuser", a.e.CreateUser)
+	a.r.Get("/refresh", a.e.RefreshTokens)
 	return a, nil
 }
 

@@ -59,3 +59,17 @@ func DeleteUser(id int64) error {
 	}
 	return nil
 }
+
+func GetRefreshAndName(id int64) (string, string, error) {
+	var token, name string
+	rows, err := DB.Query("SELECT refresh_token, name FROM users WHERE id = $1", id)
+	if err != nil {
+		return "", "", err
+	}
+	found := rows.Next()
+	if !found {
+		return "", "", sql.ErrNoRows
+	}
+	rows.Scan(&token, name)
+	return token, name, nil
+}

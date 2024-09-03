@@ -2,7 +2,6 @@ package endpoint
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/model"
@@ -13,8 +12,13 @@ type CreateUserInput struct {
 	Password string `json:"password"`
 }
 
+type RefreshTokensInput struct {
+	Token string `json:"refresh"`
+}
+
 type Service interface {
 	CreateUser(userName, password string) (*model.GeneratedTokens, error)
+	RegenerateTokens(refresh string) (*model.GeneratedTokens, error)
 }
 
 type Endpoint struct {
@@ -34,16 +38,35 @@ func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := e.s.CreateUser(input.Name, input.Password)
 	if err != nil {
-		w.WriteHeader(500)
-		w.Write([]byte(fmt.Sprintf("failed to create user: %v", err)))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	dat, err := json.Marshal(resp)
 	if err != nil {
-		w.WriteHeader(500)
-		w.Write([]byte(fmt.Sprintf("failed to create user: %v", err)))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(200)
 	w.Write(dat)
+}
+
+func (e *Endpoint) RefreshTokens(w http.ResponseWriter, r *http.Request) {
+	input := RefreshTokensInput{}
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	resp, err := e.s.RegenerateTokens(input.Token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	data, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(200)
+	w.Write(data)
 }

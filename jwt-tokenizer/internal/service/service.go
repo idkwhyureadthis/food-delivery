@@ -4,8 +4,11 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/internal/database/db"
+	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/encoder"
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/model"
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/tokengen"
 	"golang.org/x/crypto/bcrypt"
@@ -40,7 +43,7 @@ func (s *Service) CreateUser(userName, password string) (*model.GeneratedTokens,
 	if err != nil {
 		return nil, err
 	}
-	cryptedRefresh, err := bcrypt.GenerateFromPassword([]byte(tokens.RefreshToken), 14)
+	cryptedRefresh, err := encoder.CryptToken(tokens.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
@@ -49,4 +52,22 @@ func (s *Service) CreateUser(userName, password string) (*model.GeneratedTokens,
 		return nil, err
 	}
 	return tokens, nil
+}
+
+func (s *Service) RegenerateTokens(refresh string) (*model.GeneratedTokens, error) {
+	newTokens, err := tokengen.FromAccess(refresh, s.secretKey)
+	if err != nil {
+		return nil, err
+	}
+	cryptedRefresh, err := bcrypt.GenerateFromPassword([]byte(newTokens.RefreshToken), 14)
+	if err != nil {
+		return nil, err
+	}
+	idString := strings.Split(newTokens.RefreshToken, ".")[0]
+	id, err := strconv.ParseInt(idString, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	db.SetKey(id, string(cryptedRefresh))
+	return newTokens, err
 }
