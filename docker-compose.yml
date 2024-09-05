@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: idkwhyureadthis
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: project
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U idkwhyureadthis -d project'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  food-service:
+    build: /food-service
+    environment:
+      PATH: postgresql://idkwhyureadthis:12345@db:5432/project?sslmode=disable
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      jwt-auth:
+        condition: service_started
+
+  jwt-auth:
+    build: /jwt-tokenizer
+    environment:
+      PATH: postgresql://idkwhyureadthis:12345@db:5432/project?sslmode=disable
+      PORT: 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

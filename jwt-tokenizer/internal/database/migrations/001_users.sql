@@ -1,7 +1,9 @@
 -- +goose Up
 CREATE TABLE IF NOT EXISTS users(
     id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    hashed_password TEXT NOT NULL,
+    name TEXT NOT NULL,
+    refresh_token TEXT NOT NULL
 );
 
 -- +goose Down

@@ -9,14 +9,9 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-type DbData struct {
-	User, Password, Host, DbName, Port string
-}
-
 var DB *sql.DB
 
-func Setup(d DbData) error {
-	connectionURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", d.User, d.Password, d.Host, d.Port, d.DbName)
+func Setup(connectionURL string) error {
 	conn, err := sql.Open("pgx", connectionURL)
 	if err != nil {
 		return err
