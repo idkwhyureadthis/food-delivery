@@ -20,3 +20,8 @@ type Body struct {
 	Name string `json:"name"`
 	Exp  int64  `json:"exp"`
 }
+
+type ServiceResponse struct {
+	Message   string           `json:"message"`
+	NewTokens *GeneratedTokens `json:"tokens"`
+}

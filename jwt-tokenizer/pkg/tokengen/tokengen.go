@@ -15,9 +15,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type TokenPart interface {
-}
-
 func GenerateTokens(userData model.UserData, secretKey []byte) (*model.GeneratedTokens, error) {
 	tokens := model.GeneratedTokens{}
 	accessHeader := model.Header{Alg: "HS256",
@@ -25,7 +22,7 @@ func GenerateTokens(userData model.UserData, secretKey []byte) (*model.Generated
 	accessBody := model.Body{
 		Sub:  userData.Id,
 		Name: userData.Name,
-		Exp:  time.Now().Add(15 * time.Minute).Unix(),
+		Exp:  time.Now().Unix(),
 	}
 	access, err := encoder.Encode(accessHeader, accessBody, secretKey)
 	if err != nil {

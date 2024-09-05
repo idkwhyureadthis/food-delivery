@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/sha256"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,6 +13,10 @@ import (
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/model"
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/tokengen"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	errWrongToken = errors.New("token for wrong person provided")
 )
 
 type Service struct {
@@ -70,4 +75,30 @@ func (s *Service) RegenerateTokens(refresh string) (*model.GeneratedTokens, erro
 	}
 	db.SetKey(id, string(cryptedRefresh))
 	return newTokens, err
+}
+
+func (s *Service) Verify(refresh, access string, accessedId int64) (*model.ServiceResponse, error) {
+	resp := model.ServiceResponse{}
+	body, err := encoder.Decode(access, s.secretKey)
+	if err != nil {
+		if err.Error() == "token lifetime expired" {
+			newTokens, err := tokengen.FromAccess(refresh, s.secretKey)
+			if err != nil {
+				return nil, err
+			}
+			resp.NewTokens = newTokens
+			access := resp.NewTokens.AccessToken
+			body, err = encoder.Decode(access, s.secretKey)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+	if body.Sub != accessedId {
+		return nil, errWrongToken
+	}
+	resp.Message = "Verification Successful"
+	return &resp, nil
 }
