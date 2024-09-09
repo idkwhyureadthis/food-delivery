@@ -12,12 +12,24 @@ type User {
   id: ID!
   name: String!
   orders: [Order!]!
+  tokens: Tokens
+}
+
+type Tokens {
+  refresh: String!
+  access: String!
+}
+
+type TokensWithCrypted {
+  refresh: String!
+  access: String!
+  crypted_refresh: String!
 }
 
 type Order{
   id: ID!
   items: [Product!]!
-  totalPrice: Float!
+  total_price: Float!
 }
 
 type Product{
@@ -47,6 +59,7 @@ input NewProduct{
 
 input NewUser {
   name: String!
+  password: String!
 }
 
 input RemovedUser {

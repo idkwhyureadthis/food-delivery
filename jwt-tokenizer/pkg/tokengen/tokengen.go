@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/internal/database/db"
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/encoder"
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/model"
 	"golang.org/x/crypto/bcrypt"
@@ -36,13 +35,9 @@ func GenerateTokens(userData model.UserData, secretKey []byte) (*model.Generated
 	return &tokens, nil
 }
 
-func FromAccess(refresh string, secret []byte) (*model.GeneratedTokens, error) {
+func FromRefresh(refresh, cryptedRefresh, name string, secret []byte) (*model.GeneratedTokens, error) {
 	idString := strings.Split(refresh, ".")[0]
 	id, err := strconv.ParseInt(idString, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	cryptedRefresh, name, err := db.GetRefreshAndName(id)
 	if err != nil {
 		return nil, err
 	}

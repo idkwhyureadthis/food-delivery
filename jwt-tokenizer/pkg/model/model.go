@@ -1,8 +1,9 @@
 package model
 
 type GeneratedTokens struct {
-	AccessToken  string `json:"access"`
-	RefreshToken string `json:"refresh"`
+	AccessToken    string `json:"access"`
+	RefreshToken   string `json:"refresh"`
+	CryptedRefresh string `json:"crypted_refresh"`
 }
 
 type UserData struct {

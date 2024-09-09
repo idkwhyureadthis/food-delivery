@@ -7,25 +7,29 @@ import (
 	"github.com/idkwhyureadthis/food-delivery/jwt-tokenizer/pkg/model"
 )
 
-type CreateUserInput struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
+type GenerateTokensInput struct {
+	Name string `json:"name"`
+	Id   int64  `json:"id"`
 }
 
 type RefreshTokensInput struct {
-	Token string `json:"refresh"`
+	Token          string `json:"refresh"`
+	CryptedRefresh string `json:"crypted_refresh"`
+	Name           string `json:"name"`
 }
 
 type VerifyTokensInput struct {
-	Access     string `json:"access"`
-	Refresh    string `json:"refresh"`
-	AccessedId int64  `json:"access_to"`
+	Access         string `json:"access"`
+	Refresh        string `json:"refresh"`
+	CryptedRefresh string `json:"crypted_refresh"`
+	Name           string `json:"name"`
+	AccessedId     int64  `json:"access_to"`
 }
 
 type Service interface {
-	CreateUser(userName, password string) (*model.GeneratedTokens, error)
-	RegenerateTokens(refresh string) (*model.GeneratedTokens, error)
-	Verify(refresh, access string, accessedId int64) (*model.ServiceResponse, error)
+	GenerateNewTokens(userName string, id int64) (*model.GeneratedTokens, error)
+	RegenerateTokens(refresh, cryptedRefresh, name string) (*model.GeneratedTokens, error)
+	Verify(refresh, access, cryptedRefresh, name string, accessedId int64) (*model.ServiceResponse, error)
 }
 
 type Endpoint struct {
@@ -36,14 +40,14 @@ func New(s Service) *Endpoint {
 	return &Endpoint{s: s}
 }
 
-func (e *Endpoint) CreateUser(w http.ResponseWriter, r *http.Request) {
-	input := CreateUserInput{}
+func (e *Endpoint) GenerateTokens(w http.ResponseWriter, r *http.Request) {
+	input := GenerateTokensInput{}
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resp, err := e.s.CreateUser(input.Name, input.Password)
+	resp, err := e.s.GenerateNewTokens(input.Name, input.Id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -64,7 +68,7 @@ func (e *Endpoint) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resp, err := e.s.RegenerateTokens(input.Token)
+	resp, err := e.s.RegenerateTokens(input.Token, input.CryptedRefresh, input.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -84,7 +88,7 @@ func (e *Endpoint) VerifyUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	resp, err := e.s.Verify(input.Refresh, input.Access, input.AccessedId)
+	resp, err := e.s.Verify(input.Refresh, input.Access, input.CryptedRefresh, input.Name, input.AccessedId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

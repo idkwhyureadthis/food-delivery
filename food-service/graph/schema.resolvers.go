@@ -15,7 +15,7 @@ import (
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input *model.NewUser) (*model.User, error) {
-	newUser, err := service.CreateNewUser(input.Name)
+	newUser, err := service.CreateNewUser(input.Name, input.Password)
 	if err != nil {
 		graphql.AddError(ctx, err)
 		return nil, err

@@ -2,35 +2,26 @@ package service
 
 import (
 	"context"
-	"log"
+	"crypto/sha256"
+	"fmt"
 
 	"github.com/idkwhyureadthis/food-service/graph/model"
 	"github.com/idkwhyureadthis/food-service/internal/db"
 )
 
-var lastAddedUser, lastAddedOrder, lastAddedProduct int64
-
-func Init() {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Fatal(err)
-		}
-	}()
-	lastAddedUser = db.GetLastId("users")
-	lastAddedOrder = db.GetLastId("orders")
-	lastAddedProduct = db.GetLastId("products")
-}
-
-func CreateNewUser(userName string) (*model.User, error) {
-	lastAddedUser++
-	newUser := model.User{
-		ID:     lastAddedUser,
-		Name:   userName,
-		Orders: []*model.Order{},
-	}
-	err := db.AddUser(newUser)
+func CreateNewUser(userName, password string) (*model.User, error) {
+	h := sha256.New()
+	h.Write([]byte(password))
+	cryptedPassword := fmt.Sprintf("%x", h.Sum(nil))
+	id, tokens, err := db.AddUser(userName, string(cryptedPassword))
 	if err != nil {
 		return nil, err
+	}
+	newUser := model.User{
+		ID:     id,
+		Name:   userName,
+		Orders: []*model.Order{},
+		Tokens: tokens,
 	}
 	return &newUser, nil
 }

@@ -19,13 +19,14 @@ type NewProduct struct {
 }
 
 type NewUser struct {
-	Name string `json:"name"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 type Order struct {
 	ID         int64      `json:"id"`
 	Items      []*Product `json:"items"`
-	TotalPrice float64    `json:"totalPrice"`
+	TotalPrice float64    `json:"total_price"`
 }
 
 type Product struct {
@@ -43,10 +44,22 @@ type RemovedUser struct {
 	ID int64 `json:"id"`
 }
 
+type Tokens struct {
+	Refresh string `json:"refresh"`
+	Access  string `json:"access"`
+}
+
+type TokensWithCrypted struct {
+	Refresh        string `json:"refresh"`
+	Access         string `json:"access"`
+	CryptedRefresh string `json:"crypted_refresh"`
+}
+
 type User struct {
 	ID     int64    `json:"id"`
 	Name   string   `json:"name"`
 	Orders []*Order `json:"orders"`
+	Tokens *Tokens  `json:"tokens,omitempty"`
 }
 
 type ProductSize string
