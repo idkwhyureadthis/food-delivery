@@ -21,6 +21,7 @@ type NewProduct struct {
 type NewUser struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
+	About    string `json:"about"`
 }
 
 type Order struct {
@@ -58,6 +59,7 @@ type TokensWithCrypted struct {
 type User struct {
 	ID     int64    `json:"id"`
 	Name   string   `json:"name"`
+	About  string   `json:"about"`
 	Orders []*Order `json:"orders"`
 	Tokens *Tokens  `json:"tokens,omitempty"`
 }

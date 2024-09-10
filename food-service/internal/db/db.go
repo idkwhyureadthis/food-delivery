@@ -41,7 +41,16 @@ func Reset() error {
 	return Migrate()
 }
 
-func AddUser(userName, cryptedPassword string) (int64, *model.Tokens, error) {
+func GetUser(id int64) (*model.User, error) {
+	var name, about string
+	if err := DB.QueryRow("SELECT name, about from users where id = $1", id).Scan(&name, &about); err != nil {
+		return nil, err
+	}
+	userData := model.User{Name: name, About: about, ID: id, Orders: nil, Tokens: nil}
+	return &userData, nil
+}
+
+func AddUser(userName, cryptedPassword, about string) (int64, *model.Tokens, error) {
 	var tokens model.TokensWithCrypted
 	var addedId int64
 	tx, err := DB.BeginTx(context.Background(), nil)
@@ -49,7 +58,7 @@ func AddUser(userName, cryptedPassword string) (int64, *model.Tokens, error) {
 		return -1, nil, err
 	}
 	defer tx.Rollback()
-	if err = tx.QueryRow("INSERT INTO users(name, hashed_password) VALUES($1, $2) RETURNING id", userName, cryptedPassword).Scan(&addedId); err != nil {
+	if err = tx.QueryRow("INSERT INTO users(name, hashed_password, about) VALUES($1, $2, $3) RETURNING id", userName, cryptedPassword, about).Scan(&addedId); err != nil {
 		return -1, nil, err
 	}
 	genData := struct {

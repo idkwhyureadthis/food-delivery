@@ -11,6 +11,7 @@ enum ProductSize {
 type User {
   id: ID!
   name: String!
+  about: String!
   orders: [Order!]!
   tokens: Tokens
 }
@@ -60,6 +61,7 @@ input NewProduct{
 input NewUser {
   name: String!
   password: String!
+  about: String!
 }
 
 input RemovedUser {

@@ -15,7 +15,7 @@ import (
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input *model.NewUser) (*model.User, error) {
-	newUser, err := service.CreateNewUser(input.Name, input.Password)
+	newUser, err := service.CreateNewUser(input.Name, input.Password, input.About)
 	if err != nil {
 		graphql.AddError(ctx, err)
 		return nil, err
@@ -35,7 +35,12 @@ func (r *mutationResolver) AddProduct(ctx context.Context, input *model.NewProdu
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, userID int64) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	user, err := service.GetUser(userID)
+	if err != nil {
+		graphql.AddError(ctx, err)
+		return nil, err
+	}
+	return user, nil
 }
 
 // Mutation returns MutationResolver implementation.

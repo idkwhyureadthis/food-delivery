@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS users(
     id BIGSERIAL PRIMARY KEY,
     hashed_password TEXT NOT NULL,
     name TEXT NOT NULL,
-    refresh_token TEXT
+    refresh_token TEXT,
+    about TEXT NOT NULL
 );
 
 -- +goose Down
